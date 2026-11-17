@@ -12,7 +12,7 @@ O projeto utiliza principalmente WebSockets implementados por meio da biblioteca
 ela permite trabalhar de modo mais prático e moderno com a tecnologia de WebSockets, permitindo a execução de broadcast por parte do servidor, por exemplo.
 
 ## Estrutura do repositório
-
+```bash
 /Projeto-Sistemas-Distribuidos-Equipe_10
 ├── /app                       # Front-End + Cliente
 │   ├── app.js                 # Script do cliente
@@ -21,5 +21,5 @@ ela permite trabalhar de modo mais prático e moderno com a tecnologia de WebSoc
 │   ├── server.js              # Servidor que gerencia o leilão
 │   └── package.json           # Lista as dependências do projeto
 └── README.md
-
+```
 ## Instruções para rodar o projeto
