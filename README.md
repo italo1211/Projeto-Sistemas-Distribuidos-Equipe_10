@@ -13,7 +13,7 @@ O projeto utiliza principalmente WebSockets implementados por meio da biblioteca
 Essa escolha também se encaixa no leilão porque ele precisa de comunicação full-duplex: o cliente envia lances e o servidor envia atualizações para todos os clientes sem que eles precisem pedir.
 
 ## Estrutura do repositório
-bash
+```bash
 /Projeto-Sistemas-Distribuidos-Equipe_10
 ├── /app                       # Front-End + Cliente
 │   ├── app.js                 # Script do cliente
@@ -22,16 +22,16 @@ bash
 │   ├── server.js              # Servidor que gerencia o leilão
 │   └── package.json           # Lista as dependências do projeto
 └── README.md
-
+```
 ## Instruções para rodar o projeto
 Primeiramente certifique-se que tem o node.js instalado
 
 Após isso, execute os seguintes comandos no terminal:
-bash
+```bash
 cd server
 npm install
 node server.js
-
+```
 O servidor roda na porta 8080. Depois, execute o arquivo index.html da pasta app.
 
 ## Estado atual do projeto
