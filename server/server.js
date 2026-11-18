@@ -11,13 +11,9 @@ const io = require('socket.io')(http, {
 // evento de nova conexão
 io.on('connection', socket => {
     console.log('Um usuário se conectou.');
+    // Aqui emite o estado atual do leilão, no futuro fazer ser segundo a segundo
+    socket.emit('message', {item_leiloado: "Kriptonita", tempo: "100", lider: "Fulano", maior_lance: "150"});
 
-    //evento de recebimento de mensagem do cliente, nesse caso de teste, ele faz um broadcast para tds os clientes
-    // conectados, utilizando emit.
-    socket.on('message', message => {
-        console.log(message);
-        io.emit('message', `${socket.id.substr(0,2)} disse: ${message}` );
-    })
 })
 
 http.listen(8080, () => console.log('listening on http://localhost:8080'));

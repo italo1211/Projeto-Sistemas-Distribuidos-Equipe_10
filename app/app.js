@@ -2,19 +2,25 @@ const socket = io('ws://localhost:8080')
 
 //Da mesma maneira que no server.js, os clientes utilizam a biblioteca socket.IO
 
-//Ao receber uma mensagem do server, eles incorporam no html
-socket.on('message', text => {
+leader = document.getElementById("lider");
+time = document.getElementById("tempo");
+bid = document.getElementById("maior_lance");
+item = document.getElementById("item");
 
-    const el = document.createElement('li');
-    el.innerHTML = text;
-    document.querySelector('ul').appendChild(el)
+socket.on('message', msg => {
+
+    leader.textContent = msg.lider
+    time.textContent = msg.tempo
+    bid.textContent = msg.maior_lance
+    item.textContent = msg.item_leiloado
+    
 })
 
-//aqui o cliente pode mandar uma mensagem com emit
+//aqui ainda falta implementar o sistema de lance
 document.querySelector('button').onclick = () => {
 
-    const text = document.querySelector('input').value;
+    const msg = document.querySelector('input').value;
 
-    socket.emit('message', text)
+    socket.emit('message', msg)
     
 }
