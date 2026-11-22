@@ -4,6 +4,21 @@ const http = require('http').createServer();
 //Pensei em usar essa biblioteca socket.IO porque ela usa websockets de uma
 //  maneira mais prática e consegue fazer broadcast no servidor.
 
+
+//Objeto com as informações do leilão
+let estado = {item_leiloado: "iPhone Duo", tempo: 60, lider: "Lance Inicial", maior_lance: "1500"}
+
+function atualizar_clientes(estado, socket) {
+    socket.emit('update', estado)
+}
+
+function atualizar_tempo(estado){
+    estado.tempo -= 1
+}
+
+//Usado para decrementar o tempo de leilão a cada segundo passado.
+setInterval(atualizar_tempo, 1000, estado);
+
 const io = require('socket.io')(http, {
     cors: { origin: '*' }
 });
@@ -11,9 +26,35 @@ const io = require('socket.io')(http, {
 // evento de nova conexão
 io.on('connection', socket => {
     console.log('Um usuário se conectou.');
-    // Aqui emite o estado atual do leilão, no futuro fazer ser segundo a segundo
-    socket.emit('message', {item_leiloado: "Kriptonita", tempo: "100", lider: "Fulano", maior_lance: "150"});
 
+    //Aqui o server fica escutando pelo evento "comando" lançado por um cliente, onde o comando pode ser o BID
+    //que tenta estabelecer um novo lance ou status que mostra o status atual do leilão (talvez rever o uso do status
+    //já que a gente atualiza segundo a segundo já.)
+    // o evento "response" emitido aqui retorna o feedback ao cliente
+    socket.on('comando', comando => {
+    if (comando.startsWith("BID")){
+        let valor = comando.slice(4);
+        valor = Number(valor);
+        if (valor > estado.maior_lance) {
+            estado.maior_lance = valor;
+            socket.emit('response', "O valor é maior que o lance do lider atual! Você é o líder do leilão!")
+        } else{
+            socket.emit('response', "O valor não é maior que o lance do lider atual.")
+        }
+    
+    } else if (comando === 'status'){
+        if (estado.tempo > 0){
+            socket.emit('response', "O leilão está em andamento!")
+        } else{
+            socket.emit('response', "O leilão já chegou ao fim.")
+        }
+    } else {
+        socket.emit('response', "Comando não reconhecido.")
+    }
+})
+    //Isso aqui fica repetindo de segundo a segundo e emite o estado do leilão aos clientes, uma vez que chama a função atualizar clientes lá em cima.
+    //emite o evento "update" que manda o estado atualizado do leilão.
+    setInterval(atualizar_clientes, 1000, estado, socket);
 })
 
 http.listen(8080, () => console.log('listening on http://localhost:8080'));

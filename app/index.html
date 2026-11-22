@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Leilão</title>
     <script src="https://cdn.socket.io/socket.io-3.0.0.js"></script>
     <script defer src="app.js"></script>
 </head>
@@ -12,9 +12,22 @@
     <ul>
         
     </ul>
+    <div style="display: flex; flex-direction: row; gap: 200px;">
+        <div>
+            <p>Lista de comandos:</p>
+            <ul>
+                <li>'BID + valor' para enviar lances</li>
+                <li>'STATUS' para saber se o leilão ainda está em andamento</li>
+            </ul>
+        </div>
+        <div >
+            <h2>Mesagem do servidor</h2>
+            <p id="server_message">Esperando comando...</p>
+        </div>
+    </div>
 
-    <input placeholder="Informe o valor do lance">
-    <button>Enviar lance</button>
+    <input placeholder="Digite o comando desejado...">
+    <button>Enviar comando</button>
     <div>
        <h1>Estado do leilão</h1>
        <p>Item leiloado: <span id="item">Esperando conexão...</span> </p>

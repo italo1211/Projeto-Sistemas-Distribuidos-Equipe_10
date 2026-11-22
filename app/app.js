@@ -2,12 +2,17 @@ const socket = io('ws://localhost:8080')
 
 //Da mesma maneira que no server.js, os clientes utilizam a biblioteca socket.IO
 
+
+//Aqui o código pega os elementos do html para mudar o texto deles depois
 leader = document.getElementById("lider");
 time = document.getElementById("tempo");
 bid = document.getElementById("maior_lance");
 item = document.getElementById("item");
 
-socket.on('message', msg => {
+server_message = document.getElementById("server_message");
+
+//fica esperando novas atualizações do server e muda o texto do html
+socket.on('update', msg => {
 
     leader.textContent = msg.lider
     time.textContent = msg.tempo
@@ -16,11 +21,16 @@ socket.on('message', msg => {
     
 })
 
-//aqui ainda falta implementar o sistema de lance
+//fica esperando o feedback do server sobre o comando mandado
+socket.on('response', response => {
+    server_message.textContent = response
+})
+
+//Aqui ele manda o comando (texto dentro da caixa de texto do html) para o servidor quando o botão "Enviar Comando" é apertado
 document.querySelector('button').onclick = () => {
 
-    const msg = document.querySelector('input').value;
+    const comando = document.querySelector('input').value;
 
-    socket.emit('message', msg)
+    socket.emit('comando', comando)
     
 }
