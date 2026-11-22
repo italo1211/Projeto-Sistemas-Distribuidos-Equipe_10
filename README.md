@@ -8,8 +8,9 @@ O projeto consiste em um servidor que gerencia os estados de um leilão virtual.
 
 ## Decisões tecnológicas
 
-O projeto utiliza principalmente WebSockets implementados por meio da biblioteca Socket.IO. Nós decidimos utilizá-la pois
-ela permite trabalhar de modo mais prático e moderno com a tecnologia de WebSockets, permitindo a execução de broadcast por parte do servidor, por exemplo.
+O projeto utiliza principalmente WebSockets implementados por meio da biblioteca Socket.IO. Nós decidimos utilizá-la pois ela permite trabalhar de modo mais prático e moderno com a tecnologia de WebSockets, permitindo a execução de broadcast por parte do servidor, por exemplo.
+
+Essa escolha também se encaixa no leilão porque ele precisa de comunicação full-duplex: o cliente envia lances e o servidor envia atualizações para todos os clientes sem que eles precisem pedir.
 
 ## Estrutura do repositório
 ```bash
@@ -31,19 +32,37 @@ cd server
 npm install
 node server.js
 ```
-Depois, execute o arquivo index.html da pasta app.
+O servidor roda na porta 8080. Depois, execute o arquivo index.html da pasta app.
+
+## Estado atual do projeto
+Por enquanto, quando um cliente se conecta, o servidor envia o estado inicial do leilão pelo evento message, com o item leiloado, o tempo, o líder e o maior lance (valores fixos de teste). O cliente recebe esses dados e mostra na interface. O botão "Enviar lance" já envia o valor digitado ao servidor, mas o servidor ainda não processa os lances. O resto do que está descrito abaixo ainda será implementado.
 
 ## Estado central e protocolos
-As mensagens (JSONs) trocadas entre o server.js e os clientes ficaram armazenadas na memória da máquina utilizada para rodar o processo, sendo deletada ao término da conexão.
+O estado do leilão ficará armazenado na memória da máquina utilizada para rodar o servidor. Ele terá o item leiloado, o lance atual, o líder, o horário do fim do leilão, o status do leilão (aberto ou encerrado) e o histórico de lances.
 
-Os dados serão mandados por meio de WebSockets coordenados pela biblioteca socket.IO, o payload máximo utilizado é de 1000000 bytes.
+Os dados serão mandados por meio de WebSockets coordenados pela biblioteca socket.IO, o payload máximo utilizado é de 1000000 bytes. As mensagens serão JSONs e terão estes tipos:<br>
+- Envio de lance: do cliente para o servidor, com o valor do lance.<br>
+- Estado atual do leilão: do servidor para os clientes, com item, lance atual, líder, histórico de lances e tempo restante. É enviado quando o cliente se conecta e a cada segundo.<br>
+- Novo lance: o servidor avisa todos os clientes quando um lance é aceito.<br>
+- Fim do leilão: o servidor envia o vencedor para todos os clientes.<br>
+- Erro: o servidor avisa só o cliente que enviou um lance recusado, com o motivo.
+
+Os nomes exatos dos eventos serão definidos na implementação.
 
 O leilão acontecerá de forma organizada com as seguintes regras de negócio:<br>
 - Para dar um lance o cliente terá que digitar o valor na caixa de input e clicar no botão "Enviar lance"<br>
-- Para se desconectar do leilão o cliente pode clicar no botão "Desconectar-se" ou fechar a aba.<br>
+- Para se desconectar do leilão o cliente pode fechar a aba.<br>
 - O cliente será atualizado de segundo a segundo com o lance atual e líder, histórico de lances, tempo até o final (em segundos) e o item sendo leiloado. Sendo essas informações representadas na interface.
 - O Servidor mostrará no terminal mensagens informativas sobre os eventos ocorridos no leilão.
 - Os lances virão em ordem recebida (fila).
 - O servidor enviará em broadcast o estado atual do leilão aos clientes de segundo a segundo.
 - O lance recebido pelo servidor só será aceito caso seja maior que o maior lance atual armazenado nele.
 - Ao fim do leilão o servidor envia em broadcast o vencedor.
+
+## Regras de validação
+Um lance só será aceito se o valor tiver sido informado e for um número, se o leilão ainda estiver aberto e se o valor for maior que o maior lance atual. Se alguma dessas regras falhar, o servidor responde com um erro para o cliente e o estado do leilão não muda.
+
+## Sincronização e desempate
+Os lances serão processados em ordem de chegada ao servidor (fila), um de cada vez: o servidor termina de tratar um lance antes de começar o próximo. O Node.js trata os eventos em uma única thread, o que ajuda a garantir isso.
+
+Em caso de empate (dois lances com o mesmo valor), vale o primeiro que o servidor processar. O segundo é recusado, porque o lance precisa ser maior que o lance atual.
