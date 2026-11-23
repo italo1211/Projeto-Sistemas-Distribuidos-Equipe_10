@@ -32,24 +32,30 @@ io.on('connection', socket => {
     //já que a gente atualiza segundo a segundo já.)
     // o evento "response" emitido aqui retorna o feedback ao cliente
     socket.on('comando', comando => {
-    if (comando.startsWith("BID")){
-        let valor = comando.slice(4);
-        valor = Number(valor);
-        if (valor > estado.maior_lance) {
-            estado.maior_lance = valor;
-            socket.emit('response', "O valor é maior que o lance do lider atual! Você é o líder do leilão!")
-        } else{
-            socket.emit('response', "O valor não é maior que o lance do lider atual.")
+    if(estado.tempo>0){ //if que ignora comandos que forem feitos após o encerramento do leilao
+        //provavelmente a condicao mudará se quisermos consultar quem arrematou o item após o termino
+
+        if (comando.toUpperCase().startsWith("BID")){//caso seja digitado em maiuscula ou minuuscula, o comando será reconhecido
+            let valor = comando.slice(4);
+            valor = Number(valor);
+            if (valor > estado.maior_lance) {
+                estado.maior_lance = valor;
+                socket.emit('response', "O valor é maior que o lance do lider atual! Você é o líder do leilão!")
+            } 
+            else{
+                socket.emit('response', "O valor não é maior que o lance do lider atual.")
+            }
+        
         }
-    
-    } else if (comando === 'status'){
-        if (estado.tempo > 0){
-            socket.emit('response', "O leilão está em andamento!")
-        } else{
-            socket.emit('response', "O leilão já chegou ao fim.")
+        else if (comando.toLowerCase() === 'status'){ //agora mesmo que o comando seja digitado com letras maiusculas e minusculas, ele será reconhecido
+                socket.emit('response', `O leilão está em andamento! Maior lance: ${estado.maior_lance}`)
         }
-    } else {
-        socket.emit('response', "Comando não reconhecido.")
+        else {
+            socket.emit('response', "Comando não reconhecido.")
+        }
+    }
+    else{
+        socket.emit('response', "O leilão já chegou ao fim.")
     }
 })
     //Isso aqui fica repetindo de segundo a segundo e emite o estado do leilão aos clientes, uma vez que chama a função atualizar clientes lá em cima.
