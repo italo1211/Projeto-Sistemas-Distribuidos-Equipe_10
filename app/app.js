@@ -4,6 +4,7 @@ const socket = io('ws://localhost:8080')
 
 
 //Aqui o código pega os elementos do html para mudar o texto deles depois
+user = document.getElementById("user");
 leader = document.getElementById("lider");
 time = document.getElementById("tempo");
 bid = document.getElementById("maior_lance");
@@ -25,6 +26,10 @@ socket.on('update', msg => {
 socket.on('response', response => {
     server_message.textContent = response
 })
+
+socket.on('id', user_id => {
+    user.textContent = user_id;
+});
 
 //Aqui ele manda o comando (texto dentro da caixa de texto do html) para o servidor quando o botão "Enviar Comando" é apertado
 document.querySelector('button').onclick = () => {
